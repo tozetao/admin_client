@@ -2,11 +2,10 @@
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
-      <div class="title-container">
-        <h3 class="title">Login</h3>
-      </div>
-      <div v-if="platform.is_expired" class="prompt">该平台已过期, 请联系商务客服！</div>
-      <div v-if="platform.is_prompted" class="prompt">平台将在{{ platform.expired_at }}到期, 请联系商务客服！</div>
+      <!-- <div class="title-container">
+        <h3 class="title">Admin</h3>
+      </div> -->
+
       <el-form-item prop="username">
         <span class="svg-container">
           <svg-icon icon-class="user" />
@@ -49,7 +48,6 @@
 <script>
 import { validUsername } from '@/utils/validate'
 import { getQueryValue } from '@/utils/query'
-import { fetchPlatform } from '@/api/session'
 
 export default {
   name: 'Login',
@@ -70,11 +68,6 @@ export default {
     }
 
     return {
-      platform: {
-        is_expired: false,
-        is_prompted: false,
-        expired_at: ''
-      },
       loginForm: {
         username: '',
         password: '',
@@ -99,23 +92,7 @@ export default {
       immediate: true
     }
   },
-  created() {
-    this.$nextTick(() => {
-      this.cacheCode()
-      // this.fetchPlatform()
-    })
-  },
   methods: {
-    fetchPlatform() {
-      fetchPlatform({
-        code: getQueryValue('code')
-      }).then(response => {
-        const { data } = response
-        this.platform.expired_at = data.expired_at
-        this.platform.is_expired = data.is_expired
-        this.platform.is_prompted = data.is_prompted
-      })
-    },
     // 每次进入登录页面就会缓存code，退出时将会从缓存中回去code并返回
     cacheCode() {
       const code = getQueryValue('code')
@@ -134,8 +111,6 @@ export default {
       })
     },
     handleLogin() {
-      this.loginForm.code = getQueryValue('code')
-      this.cacheCode()
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
